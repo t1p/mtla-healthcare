@@ -1,0 +1,11 @@
+@import url('../operator/styles.css');
+
+.badge-beta {
+  background: rgba(140,180,255,0.16);
+  color: var(--secondary);
+}
+
+.badge-early {
+  background: rgba(110,149,255,0.18);
+  color: #b8caff;
+}

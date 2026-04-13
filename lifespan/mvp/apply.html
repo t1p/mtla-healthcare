@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeSpan MVP — заявка на участие</title>
+  <meta name="description" content="Заявка на участие в beta-услуге LifeSpan MVP. Отправка данных в Google Sheet через Apps Script Web App." />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="form.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">◉</span>
+        <span>LifeSpan MVP</span>
+      </a>
+      <nav class="nav-links">
+        <a href="./index.html#offer">Оффер</a>
+        <a href="./index.html#beta">Beta</a>
+        <a href="#form">Форма</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="section hero-small">
+      <div class="container section-heading">
+        <span class="eyebrow">Beta signup / MTLA Healthcare — партнёр проекта</span>
+        <h1>Заявка на участие в LifeSpan MVP</h1>
+        <p>
+          Оставь заявку на бесплатный test drive. После отправки данные попадут в Google Sheet,
+          а команда сможет связаться с тобой по приоритету beta-набора.
+        </p>
+      </div>
+    </section>
+
+    <section id="form" class="section section-alt">
+      <div class="container">
+        <div class="card soft-shadow form-shell">
+          <div class="card-topline">Форма участия</div>
+          <form id="signup-form" class="form-grid">
+            <div class="form-field">
+              <label class="form-label" for="name">Имя или как к тебе обращаться</label>
+              <input class="form-input" id="name" name="name" placeholder="Например, Игорь" required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="telegram">Telegram</label>
+              <input class="form-input" id="telegram" name="telegram" placeholder="@username" required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="email">Email</label>
+              <input class="form-input" id="email" name="email" type="email" placeholder="name@example.com" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="city_country">Город / страна</label>
+              <input class="form-input" id="city_country" name="city_country" placeholder="Подгорица, Черногория" />
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="why_now">Почему тебе это актуально именно сейчас</label>
+              <textarea class="form-textarea" id="why_now" name="why_now" placeholder="Коротко: что происходит, почему решил попробовать сейчас" required></textarea>
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="main_problem">Что у тебя чаще всего ломается в режиме</label>
+              <textarea class="form-textarea" id="main_problem" name="main_problem" placeholder="Сон, утренний запуск, движение, хаос дня, срывы, отсутствие weekly review и т.д." required></textarea>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="preferred_mode">Предпочтительный режим</label>
+              <select class="form-select" id="preferred_mode" name="preferred_mode">
+                <option value="support">Support / мягкий</option>
+                <option value="directive">Directive / более жёсткий</option>
+                <option value="commit">Commit / с ценой слова</option>
+                <option value="unsure">Пока не уверен</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="tracker">Есть ли трекер / часы / кольцо</label>
+              <select class="form-select" id="tracker" name="tracker">
+                <option value="none">Пока нет</option>
+                <option value="phone">Только смартфон</option>
+                <option value="watch_or_band">Часы / браслет</option>
+                <option value="ring">Кольцо / ring</option>
+                <option value="mixed">Несколько устройств</option>
+              </select>
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="commitment_interest">Интерес к commitment-слою</label>
+              <select class="form-select" id="commitment_interest" name="commitment_interest">
+                <option value="no">Пока без этого</option>
+                <option value="maybe">Возможно, если будет мягко и прозрачно</option>
+                <option value="yes">Да, мне это может быть полезно</option>
+              </select>
+            </div>
+
+            <input type="hidden" name="source" value="lifespan-mvp-apply-page" />
+            <input type="hidden" id="user_agent" name="user_agent" value="" />
+
+            <div class="form-field full">
+              <button class="button button-primary" id="submit-button" type="submit">Отправить заявку</button>
+            </div>
+          </form>
+
+          <p class="form-note">
+            После отправки заявка попадает в Google Sheet. Бесплатный test drive не гарантирует автоматического входа,
+            но даёт приоритет на разбор и обратную связь по beta-набору.
+          </p>
+          <p id="form-status" class="form-status"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const FORM_ENDPOINT = 'REPLACE_WITH_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+    const form = document.getElementById('signup-form');
+    const statusNode = document.getElementById('form-status');
+    const submitButton = document.getElementById('submit-button');
+    document.getElementById('user_agent').value = navigator.userAgent;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (!FORM_ENDPOINT || FORM_ENDPOINT.includes('REPLACE_WITH')) {
+        statusNode.className = 'form-status error';
+        statusNode.textContent = 'Форма ещё не подключена к Google Apps Script endpoint. Вставь URL веб-приложения в apply.html.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      statusNode.className = 'form-status';
+      statusNode.textContent = 'Отправляем заявку…';
+
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const response = await fetch(FORM_ENDPOINT, {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        statusNode.className = 'form-status success';
+        statusNode.textContent = 'Заявка отправлена. Мы свяжемся с тобой после разбора beta-набора.';
+        form.reset();
+      } catch (error) {
+        statusNode.className = 'form-status error';
+        statusNode.textContent = 'Не удалось отправить заявку. Проверь endpoint Apps Script и повтори попытку.';
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

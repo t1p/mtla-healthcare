@@ -119,31 +119,44 @@
             После отправки заявка попадает в Google Sheet. Бесплатный test drive не гарантирует автоматического входа,
             но даёт приоритет на разбор и обратную связь по beta-набору.
           </p>
-          <p id="form-status" class="form-status"></p>
+          <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
         </div>
       </div>
     </section>
   </main>
 
   <script>
-    const FORM_ENDPOINT = 'REPLACE_WITH_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+    const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAkrjQ-R3ThtjJBSydJ2RvMSm46JI3nayySICohUKyyux_S37fkkoroAJu6bqjWKPg5g/exec';
     const form = document.getElementById('signup-form');
     const statusNode = document.getElementById('form-status');
     const submitButton = document.getElementById('submit-button');
+    const defaultSubmitLabel = submitButton.textContent;
+    let isSubmitting = false;
+    let isSubmitted = false;
     document.getElementById('user_agent').value = navigator.userAgent;
+
+    function setStatus(type, message) {
+      statusNode.className = `form-status ${type}`;
+      statusNode.textContent = message;
+      statusNode.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+    }
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      if (!FORM_ENDPOINT || FORM_ENDPOINT.includes('REPLACE_WITH')) {
-        statusNode.className = 'form-status error';
-        statusNode.textContent = 'Форма ещё не подключена к Google Apps Script endpoint. Вставь URL веб-приложения в apply.html.';
+      if (isSubmitting || isSubmitted) {
         return;
       }
 
+      if (!FORM_ENDPOINT || FORM_ENDPOINT.includes('REPLACE_WITH')) {
+        setStatus('error', 'Форма ещё не подключена к Google Apps Script endpoint. Проверь значение FORM_ENDPOINT в apply.html.');
+        return;
+      }
+
+      isSubmitting = true;
       submitButton.disabled = true;
-      statusNode.className = 'form-status';
-      statusNode.textContent = 'Отправляем заявку…';
+      submitButton.textContent = 'Отправляем…';
+      setStatus('', 'Отправляем заявку…');
 
       const payload = Object.fromEntries(new FormData(form).entries());
 
@@ -157,18 +170,35 @@
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+        const rawResponse = await response.text();
+        let responseJson = null;
+        if (rawResponse) {
+          try {
+            responseJson = JSON.parse(rawResponse);
+          } catch (_) {
+            responseJson = null;
+          }
         }
 
-        statusNode.className = 'form-status success';
-        statusNode.textContent = 'Заявка отправлена. Мы свяжемся с тобой после разбора beta-набора.';
+        const jsonExplicitError = responseJson && responseJson.ok === false;
+        const jsonExplicitSuccess = responseJson && responseJson.ok === true;
+        const isSuccessful = response.ok && (!responseJson || jsonExplicitSuccess);
+
+        if (!isSuccessful || jsonExplicitError) {
+          const serverError = responseJson && responseJson.error ? ` Детали: ${responseJson.error}` : '';
+          throw new Error(`Сервер вернул ошибку при отправке.${serverError}`);
+        }
+
+        isSubmitted = true;
+        setStatus('success', 'Заявка отправлена. Следующий шаг: мы проверим анкету, после чего напишем в Telegram или на Email с решением по test drive и ближайшим окном онбординга.');
         form.reset();
+        submitButton.textContent = 'Заявка отправлена';
       } catch (error) {
-        statusNode.className = 'form-status error';
-        statusNode.textContent = 'Не удалось отправить заявку. Проверь endpoint Apps Script и повтори попытку.';
-      } finally {
+        setStatus('error', error.message || 'Не удалось отправить заявку. Проверь соединение и повтори попытку.');
         submitButton.disabled = false;
+        submitButton.textContent = defaultSubmitLabel;
+      } finally {
+        isSubmitting = false;
       }
     });
   </script>

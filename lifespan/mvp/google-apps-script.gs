@@ -3,7 +3,7 @@ const SHEET_NAME = 'Sheet1';
 
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents || '{}');
+    const data = parseIncomingData_(e);
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
 
     sheet.appendRow([
@@ -28,5 +28,26 @@ function doPost(e) {
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, error: String(error) }))
       .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function parseIncomingData_(e) {
+  const event = e || {};
+  const params = event.parameter || {};
+
+  if (Object.keys(params).length > 0) {
+    return params;
+  }
+
+  const rawBody = event.postData && event.postData.contents ? event.postData.contents : '';
+  if (!rawBody) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(rawBody);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    return {};
   }
 }

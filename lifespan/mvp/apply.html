@@ -46,7 +46,12 @@
       <div class="container">
         <div class="card soft-shadow form-shell">
           <div class="card-topline">Форма участия</div>
-          <form id="signup-form" class="form-grid">
+          <form
+            id="signup-form"
+            class="form-grid"
+            method="post"
+            action="https://script.google.com/macros/s/AKfycbwAkrjQ-R3ThtjJBSydJ2RvMSm46JI3nayySICohUKyyux_S37fkkoroAJu6bqjWKPg5g/exec"
+          >
             <div class="form-field">
               <label class="form-label" for="name">Имя или как к тебе обращаться</label>
               <input class="form-input" id="name" name="name" placeholder="Например, Игорь" required />
@@ -119,87 +124,22 @@
             После отправки заявка попадает в Google Sheet. Бесплатный test drive не гарантирует автоматического входа,
             но даёт приоритет на разбор и обратную связь по beta-набору.
           </p>
-          <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+          <p class="form-status" role="status" aria-live="polite">
+            После нажатия «Отправить заявку» откроется страница подтверждения от сервиса приёма заявок.
+          </p>
         </div>
       </div>
     </section>
   </main>
 
   <script>
-    const FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAkrjQ-R3ThtjJBSydJ2RvMSm46JI3nayySICohUKyyux_S37fkkoroAJu6bqjWKPg5g/exec';
     const form = document.getElementById('signup-form');
-    const statusNode = document.getElementById('form-status');
     const submitButton = document.getElementById('submit-button');
-    const defaultSubmitLabel = submitButton.textContent;
-    let isSubmitting = false;
-    let isSubmitted = false;
     document.getElementById('user_agent').value = navigator.userAgent;
 
-    function setStatus(type, message) {
-      statusNode.className = `form-status ${type}`;
-      statusNode.textContent = message;
-      statusNode.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
-    }
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      if (isSubmitting || isSubmitted) {
-        return;
-      }
-
-      if (!FORM_ENDPOINT || FORM_ENDPOINT.includes('REPLACE_WITH')) {
-        setStatus('error', 'Форма ещё не подключена к Google Apps Script endpoint. Проверь значение FORM_ENDPOINT в apply.html.');
-        return;
-      }
-
-      isSubmitting = true;
+    form.addEventListener('submit', () => {
       submitButton.disabled = true;
       submitButton.textContent = 'Отправляем…';
-      setStatus('', 'Отправляем заявку…');
-
-      const payload = Object.fromEntries(new FormData(form).entries());
-
-      try {
-        const response = await fetch(FORM_ENDPOINT, {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const rawResponse = await response.text();
-        let responseJson = null;
-        if (rawResponse) {
-          try {
-            responseJson = JSON.parse(rawResponse);
-          } catch (_) {
-            responseJson = null;
-          }
-        }
-
-        const jsonExplicitError = responseJson && responseJson.ok === false;
-        const jsonExplicitSuccess = responseJson && responseJson.ok === true;
-        const isSuccessful = response.ok && (!responseJson || jsonExplicitSuccess);
-
-        if (!isSuccessful || jsonExplicitError) {
-          const serverError = responseJson && responseJson.error ? ` Детали: ${responseJson.error}` : '';
-          throw new Error(`Сервер вернул ошибку при отправке.${serverError}`);
-        }
-
-        isSubmitted = true;
-        setStatus('success', 'Заявка отправлена. Следующий шаг: мы проверим анкету, после чего напишем в Telegram или на Email с решением по test drive и ближайшим окном онбординга.');
-        form.reset();
-        submitButton.textContent = 'Заявка отправлена';
-      } catch (error) {
-        setStatus('error', error.message || 'Не удалось отправить заявку. Проверь соединение и повтори попытку.');
-        submitButton.disabled = false;
-        submitButton.textContent = defaultSubmitLabel;
-      } finally {
-        isSubmitting = false;
-      }
     });
   </script>
 </body>

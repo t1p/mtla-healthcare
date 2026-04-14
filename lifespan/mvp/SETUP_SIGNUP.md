@@ -31,17 +31,21 @@ https://script.google.com/macros/s/AKfycbwAkrjQ-R3ThtjJBSydJ2RvMSm46JI3nayySICoh
 - Execute as: `Me`.
 - Who has access: `Anyone`.
 - Нажми `Deploy`.
-- Если Google выдаст новый URL web app, обнови `FORM_ENDPOINT` в `lifespan/mvp/apply.html`.
+- Если Google выдаст новый URL web app, обнови `action` у формы в `lifespan/mvp/apply.html`.
+
+### 4. Текущий механизм отправки
+- Форма в `apply.html` отправляется как обычный HTML `POST` напрямую в Apps Script Web App (`form action=...`).
+- Клиентский `fetch` не используется (это убирает риск `Failed to fetch` из-за CORS/браузерных ограничений).
+- `doPost(e)` в Apps Script поддерживает оба формата: обычный form POST (`e.parameter`) и JSON payload (`e.postData.contents`).
 
 ## Smoke test (минимум перед beta-трафиком)
 1. Открой `lifespan/mvp/index.html`.
 2. Нажми hero CTA `Получить бесплатный test drive` — должен открыться `./apply.html`.
 3. Заполни форму тестовыми данными и отправь.
-4. На странице должен появиться success-статус с текстом про следующий шаг.
+4. После отправки должна открыться страница ответа Web App с JSON `{"ok":true}`.
 5. В Google Sheet должна появиться новая строка с данными заявки.
-6. Повторная отправка той же формы в текущем сеансе должна быть заблокирована.
 
 ## GitHub Pages-ready проверка
 - Все CTA в `lifespan/mvp/index.html` ведут на относительные ссылки (`./apply.html` или якоря), без локальных путей.
-- Форма в `lifespan/mvp/apply.html` использует production endpoint и не содержит плейсхолдера.
+- Форма в `lifespan/mvp/apply.html` использует production endpoint в `action` и не содержит плейсхолдера.
 - После деплоя Pages проверить сценарий полностью: `landing → apply → submit → Google Sheet row created`.

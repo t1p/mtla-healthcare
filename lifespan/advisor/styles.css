@@ -1,0 +1,6 @@
+@import url('../mvp/styles.css');
+
+.badge-advisor {
+  background: rgba(140, 180, 255, 0.16);
+  color: var(--secondary);
+}

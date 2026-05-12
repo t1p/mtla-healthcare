@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MTLA LifeSpan Circle — заявка на участие</title>
+  <meta name="description" content="Заявка на участие в 4-недельном пилоте LifeSpan Circle. Отправка данных в Google Sheet через Apps Script Web App." />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="form.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">◉</span>
+        <span>MTLA LifeSpan Circle</span>
+      </a>
+      <nav class="nav-links">
+        <a href="./index.html#about">О пилоте</a>
+        <a href="./index.html#how">Как работает</a>
+        <a href="#form">Форма</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="section hero-small">
+      <div class="container section-heading">
+        <span class="eyebrow">Пилот программы ЗОЖ / MTLA LifeSpan</span>
+        <h1>Заявка на участие в LifeSpan Circle</h1>
+        <p>
+          Оставь заявку на участие в 4-недельном групповом пилоте. После отправки данные попадут в Google Sheet,
+          а команда сможет связаться с тобой для согласования группы и сроков старта.
+        </p>
+      </div>
+    </section>
+
+    <section id="form" class="section section-alt">
+      <div class="container">
+        <div class="card soft-shadow form-shell">
+          <div class="card-topline">Форма участия</div>
+          <form
+            id="signup-form"
+            class="form-grid"
+            method="post"
+            action="https://script.google.com/macros/s/AKfycbwAkrjQ-R3ThtjJBSydJ2RvMSm46JI3nayySICohUKyyux_S37fkkoroAJu6bqjWKPg5g/exec"
+          >
+            <div class="form-field">
+              <label class="form-label" for="name">Имя или как к тебе обращаться</label>
+              <input class="form-input" id="name" name="name" placeholder="Например, Мария" required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="telegram">Telegram</label>
+              <input class="form-input" id="telegram" name="telegram" placeholder="@username" required />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="email">Email</label>
+              <input class="form-input" id="email" name="email" type="email" placeholder="name@example.com" />
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="city_country">Город / страна</label>
+              <input class="form-input" id="city_country" name="city_country" placeholder="Подгорица, Черногория" />
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="why_now">Почему тебе это актуально именно сейчас</label>
+              <textarea class="form-textarea" id="why_now" name="why_now" placeholder="Коротко: что происходит, почему решил попробовать сейчас" required></textarea>
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="main_problem">Что у тебя чаще всего ломается в режиме</label>
+              <textarea class="form-textarea" id="main_problem" name="main_problem" placeholder="Сон, утренний запуск, движение, хаос дня, срывы, отсутствие weekly review и т.д." required></textarea>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="preferred_mode">Предпочтительный режим</label>
+              <select class="form-select" id="preferred_mode" name="preferred_mode">
+                <option value="soft">Soft / мягкий</option>
+                <option value="commit">Commit / с ценой слова</option>
+                <option value="unsure">Пока не уверен</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="tracker">Есть ли трекер / часы / кольцо</label>
+              <select class="form-select" id="tracker" name="tracker">
+                <option value="none">Пока нет</option>
+                <option value="phone">Только смартфон</option>
+                <option value="watch_or_band">Часы / браслет</option>
+                <option value="ring">Кольцо / ring</option>
+                <option value="mixed">Несколько устройств</option>
+              </select>
+            </div>
+
+            <div class="form-field full">
+              <label class="form-label" for="additional_notes">Дополнительные заметки</label>
+              <textarea class="form-textarea" id="additional_notes" name="additional_notes" placeholder="Есть ли вопросы или что-то ещё важное для нас знать"></textarea>
+            </div>
+
+            <input type="hidden" name="source" value="lifespan-Circle-apply-page" />
+            <input type="hidden" id="user_agent" name="user_agent" value="" />
+
+            <div class="form-field full">
+              <button class="button button-primary" id="submit-button" type="submit">Отправить заявку</button>
+            </div>
+          </form>
+
+          <p class="form-note">
+            После отправки заявка попадает в Google Sheet. Команда свяжется с тобой для согласования сроков и формирования группы.
+          </p>
+          <p class="form-status" role="status" aria-live="polite">
+            После нажатия «Отправить заявку» откроется страница подтверждения от сервиса приёма заявок.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('signup-form');
+    const submitButton = document.getElementById('submit-button');
+    document.getElementById('user_agent').value = navigator.userAgent;
+
+    form.addEventListener('submit', () => {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Отправляем…';
+    });
+  </script>
+</body>
+</html>
